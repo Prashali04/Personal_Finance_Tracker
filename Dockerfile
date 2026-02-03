@@ -1,35 +1,25 @@
-# 
-FROM python:3.7-slim-stretch
+FROM python:3.11-slim
 
-# Set environment variables for Python
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
+RUN useradd -m appuser
 WORKDIR /app
 
-# 2. INTRODUCE HARDCODED SECRETS
-
-
-RUN echo "class Config:" > config.py && \
-    echo "    AWS_ACCESS_KEY_ID = 'AKIAIOSFODNN7EXAMPLE'" >> config.py && \
-    echo "    GITHUB_TOKEN = 'ghp_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0'" >> config.py && \
-    echo "    DATABASE_PASSWORD = \"supersecretpassword123!\"" >> config.py
-
-# 
-# This is the EICAR test string. It's a harmless, standard file used to test
-# antivirus and malware scanners. ThreatMapper will detect this as malware.
-RUN echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > eicar_test_file.com
-
-# Copy and install vulnerable dependencies
 COPY requirements.txt .
-RUN python -m pip install --upgrade pip
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
 COPY . .
 
-#  Expose the port
-EXPOSE 8000
+RUN chown -R appuser:appuser /app
+USER appuser
 
-# Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "app:app"]
+EXPOSE 5000
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+
+
