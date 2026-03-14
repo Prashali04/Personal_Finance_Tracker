@@ -35,14 +35,14 @@ pipeline {
         }
 
         stage('Docker Bench Security') {
-            steps {
-                sh '''
-                git clone https://github.com/docker/docker-bench-security.git || true
-                cd docker-bench-security
-                sh docker-bench-security.sh
-                '''
-            }
-        }
+    steps {
+        sh '''
+        git clone https://github.com/docker/docker-bench-security.git || true
+        cd docker-bench-security
+        sh docker-bench-security.sh
+        '''
+    }
+}
 
     }
 }
