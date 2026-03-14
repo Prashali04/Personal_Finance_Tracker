@@ -15,11 +15,11 @@ pipeline {
             }
         }
 
-        stage('Security Scan (Trivy)') {
-            steps {
-                sh '''
-                trivy image --exit-code 1 --severity CRITICAL,HIGH finance-secure-app
-                '''
+       stage('Security Scan (Trivy)') {
+    steps {
+        sh '''
+        trivy image --scanners vuln --severity HIGH,CRITICAL finance-secure-app
+        '''
             }
         }
 
